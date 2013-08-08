@@ -1,0 +1,83 @@
+#!/bin/bash
+
+# script for running various latex applications on specified file
+#
+# argument list :
+#
+#	1) filename (without extension)
+#		extension should not be used because different applications target different filetypes
+#		the script will check for files with the given name and the appropriate extension before 
+#		running the application
+#
+#	2) list of commands
+#		these should be specified as single letters (see script's core while loop)
+#
+# e.g.	$ dytex test pbypp 
+#
+#	would run pdflatex, bibtex, pythontex, pdflatex, and then pdflatex again on test.tex and
+#	test.bibtex, as appropriate
+#
+#	for more information on the requirements of each application see the appropriate function
+#	e.g. request_bibtex, request_pythontex
+
+filename=$1
+commands_list=$2
+
+# this is the core of the script and runs immediately :
+# checks that the file exists, and then attempts to 
+# perform requested commands in specified sequence
+function main {
+	if [ -s $filename.tex ] ; then						# check the file exists
+		counter=0							# set loop counter to 0
+		while [ $counter -lt ${#commands_list} ] ; do			# count through command list
+			command=${commands_list:counter:1}			# store current command
+			let pretty_counter=counter+1
+		
+			echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			echo processing command $pretty_counter - $command
+			echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			test "$command" == "b" && request_bibtex 		# if b, run bibtex
+			test "$command" == "p" && request_pdflatex		# if p, run pdflatex
+			test "$command" == "y" && request_pythontex 		# if y, run pythontex
+		
+			let counter=counter+1					# increment counter
+		done
+	else									# if file doesn't exist
+		echo arguments invalid - should be : dytex filename commands
+	fi
+}
+
+# function for requesting a bibtex run :
+# checks if a bibtex file exists first
+function request_bibtex {
+	if [ -s $filename.bib ] ; then						# check a bibtex file exists
+		echo running bibtex...
+		bibtex $filename						# run bibtex on the file
+		echo done.
+	else									# if bibtex file doesn't exist
+		echo bibtex requested but bibtex file not found.
+	fi
+}
+
+# function for requesting a pdflatex run :
+# doesn't perform any checks - file should exist
+# if this is being called
+function request_pdflatex {
+	echo running pdflatex...
+	pdflatex --shell-escape $filename  					# run pdflatex on the file
+	echo done.
+}
+
+# function for calling pythontex :
+# checks if tex file imports pythontex first
+function request_pythontex {
+	if grep -Fxq "\usepackage{pythontex}" $filename.tex ; then		# check file imports pythontex
+		echo running pythontex...
+		pythontex $filename 						# run pythontex on the file
+		echo done
+	else									# if pythontex is not imported
+		echo pythontex requested but file does not use pythontex.
+	fi
+}
+
+main										# call main function

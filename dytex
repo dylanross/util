@@ -39,6 +39,7 @@ function main {
 			test "$command" == "b" && request_bibtex 		# if b, run bibtex
 			test "$command" == "p" && request_pdflatex		# if p, run pdflatex
 			test "$command" == "y" && request_pythontex 		# if y, run pythontex
+			test "$command" == "t" && request_texcount
 		
 			let counter=counter+1					# increment counter
 		done
@@ -50,13 +51,9 @@ function main {
 # function for requesting a bibtex run :
 # checks if a bibtex file exists first
 function request_bibtex {
-	if [ -s $filename.bib ] ; then						# check a bibtex file exists
-		echo running bibtex...
-		bibtex $filename						# run bibtex on the file
-		echo done.
-	else									# if bibtex file doesn't exist
-		echo bibtex requested but bibtex file not found.
-	fi
+	echo running bibtex...
+	bibtex $filename						# run bibtex on the file
+	echo done.
 }
 
 # function for requesting a pdflatex run :
@@ -78,6 +75,13 @@ function request_pythontex {
 	else									# if pythontex is not imported
 		echo pythontex requested but file does not use pythontex.
 	fi
+}
+
+# function for calling texcount
+function request_texcount {
+	echo running texcount...
+	texcount $filename.tex
+	echo done.
 }
 
 main										# call main function

@@ -1,0 +1,76 @@
+#!/usr/bin/env python
+
+import freenect
+import cv
+import frame_convert
+import numpy as np
+
+from subprocess import call
+
+threshold = 300
+current_depth = 450
+pixel_threshold = 100000
+
+curr_state = True
+
+
+def change_threshold(value):
+    global threshold
+    threshold = value
+
+
+def change_depth(value):
+    global current_depth
+    current_depth = value
+
+
+def show_depth():
+    global threshold
+    global current_depth
+    global pixel_threshold
+    global curr_state
+
+    depth, timestamp = freenect.sync_get_depth()
+    depth = 255 * np.logical_and(depth >= current_depth - threshold,
+                                 depth <= current_depth + threshold)
+
+    if np.sum(depth) > pixel_threshold :
+        #call('xinput set-prop 9 "Device Enabled" 1')
+        if curr_state == False : 
+            print "monitor turning on"
+        call("xset dpms force on".split())
+        curr_state = True
+    else :
+        #call('xinput set-prop 9 "Device Enabled" 0')
+        if curr_state == True : 
+            print "monitor turning off"
+        call("xset dpms force off".split())
+        curr_state = False
+
+    depth = depth.astype(np.uint8)
+    image = cv.CreateImageHeader((depth.shape[1], depth.shape[0]),
+                                 cv.IPL_DEPTH_8U,
+                                 1)
+
+    cv.SetData(image, depth.tostring(),
+               depth.dtype.itemsize * depth.shape[1])
+#    cv.ShowImage('Depth', image)
+
+
+def show_video():
+    cv.ShowImage('Video', frame_convert.video_cv(freenect.sync_get_video()[0]))
+
+
+#cv.NamedWindow('Depth')
+#cv.NamedWindow('Video')
+#cv.CreateTrackbar('threshold', 'Depth', threshold,     500,  change_threshold)
+#cv.CreateTrackbar('depth',     'Depth', current_depth, 2048, change_depth)
+
+print('Press ESC in window to stop')
+
+
+while 1:
+    show_depth()
+#    show_video()
+    if cv.WaitKey(30) == 27:
+        break

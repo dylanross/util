@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+###############################################################################
+### This script will put all attached monitors to sleep until the user hits ###
+### the m key. The mouse will be disabled while the monitors are asleep, to ###
+### avoid accidental waking.						    ###
+###############################################################################
+
+echo "TODO monitors will sleep in 5 seconds"
+echo "mouse will be disabled while monitors are asleep"
+echo "hit key m to wake"
+
+sleep 5
+
+echo "disabling mouse input"
+xinput set-prop 9 "Device Enabled" 0
+
+echo "putting monitors to sleep"
+xset dpms force off
+
+while :
+do
+	read -t 1 -n 1 key
+	if [[ $key = m ]]
+	then
+		echo ""
+		break
+	fi
+done
+
+echo "enabling mouse input"
+xinput set-prop 9 "Device Enabled" 1
+echo "waking monitors"

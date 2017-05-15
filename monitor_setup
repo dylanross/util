@@ -1,0 +1,4 @@
+#! /usr/bin/env bash
+
+xrandr --output VGA1 --rotate left
+xrandr --output VGA1 --right-of DP1

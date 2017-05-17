@@ -1,5 +1,5 @@
-" Use pathogen
-execute pathogen#infect()
+" Turn off beeping :
+set vb t_vb=
 
 " Turn on syntax highlighting :
 syntax on
@@ -13,6 +13,13 @@ filetype plugin indent on
 " Allow modeline at bottom of document to be read by vim :
 set modeline
 
+" Set font
+set guifont=Monospace\ 8
+
+" Set colors
+set background=dark
+#color DMRtheme5
+
 " Fix problem with arrow keys giving letters :
 set nocompatible
 
@@ -21,11 +28,6 @@ set backspace=2
 
 " Turn on line numbers :
 set number
-
-" Hide MacVim menu :
-" if has("gui_running")
-" 	guioptions=egmrt
-" endif
 
 " Load custom LaTeX syntax file with embedded code support :
 au BufRead *.tex set syntax=pytex
